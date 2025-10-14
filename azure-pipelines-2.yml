@@ -1,0 +1,35 @@
+trigger:
+- main  # run on main branch
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Demo_CI
+  displayName: "Demo CI Pipeline"
+  jobs:
+  - job: DemoJob
+    displayName: "Demo Job"
+    steps:
+    - script: |
+        echo "======================================="
+        echo "       DEMO PIPELINE RUNNING"
+        echo "======================================="
+        echo "Pipeline triggered on branch: $(Build.SourceBranch)"
+        echo "Build number: $(Build.BuildNumber)"
+        echo "Agent name: $(Agent.Name)"
+        echo "Agent OS: $(Agent.OS)"
+        echo "Current date: $(Date:yyyy-MM-dd HH:mm:ss)"
+        echo "Creating demo artifact..."
+        mkdir -p output
+        echo "Hello from Azure DevOps demo pipeline!" > output/demo.txt
+        echo "Content of demo.txt:"
+        cat output/demo.txt
+      displayName: "Run Demo Steps"
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: 'output'
+        ArtifactName: 'demo-output'
+        publishLocation: 'Container'
+      displayName: "Publish Demo Artifact"
