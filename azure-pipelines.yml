@@ -1,19 +1,27 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+- main  # or your branch name
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+  VM_USER: 'sonu321'
+  VM_IP: '20.121.62.227'
+  SSH_KEY: $(SSH_PRIVATE_KEY)  # store private key in Azure DevOps Pipeline secrets
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+- stage: CI_Demo
+  jobs:
+  - job: CheckVM
+    steps:
+    - task: InstallSSHKey@0
+      inputs:
+        sshPublicKey: ''
+        sshKeySecureFile: ''
+        sshPassphrase: ''
+        runAs: '$(VM_USER)'
+
+    - script: |
+        echo "Checking connectivity to VM..."
+        ssh -o StrictHostKeyChecking=no $(VM_USER)@$(VM_IP) "echo 'Hello from VM!'; uptime; hostname; whoami"
+      displayName: 'Connect to VM and show info'
