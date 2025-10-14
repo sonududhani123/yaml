@@ -1,30 +1,35 @@
-name: CI/CD Pipeline
+trigger:
+- main  # run on main branch
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+pool:
+  vmImage: 'ubuntu-latest'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
+stages:
+- stage: Demo_CI
+  displayName: "Demo CI Pipeline"
+  jobs:
+  - job: DemoJob
+    displayName: "Demo Job"
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - script: |
+        echo "======================================="
+        echo "       DEMO PIPELINE RUNNING"
+        echo "======================================="
+        echo "Pipeline triggered on branch: $(Build.SourceBranch)"
+        echo "Build number: $(Build.BuildNumber)"
+        echo "Agent name: $(Agent.Name)"
+        echo "Agent OS: $(Agent.OS)"
+        echo "Current date: $(Date:yyyy-MM-dd HH:mm:ss)"
+        echo "Creating demo artifact..."
+        mkdir -p output
+        echo "Hello from Azure DevOps demo pipeline!" > output/demo.txt
+        echo "Content of demo.txt:"
+        cat output/demo.txt
+      displayName: "Run Demo Steps"
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run tests
-      run: |
-        pip install pytest
-        pytest
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: 'output'
+        ArtifactName: 'demo-output'
+        publishLocation: 'Container'
+      displayName: "Publish Demo Artifact"
