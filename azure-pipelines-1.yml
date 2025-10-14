@@ -1,0 +1,27 @@
+trigger:
+- main  # or your branch name
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  VM_USER: 'sonu321'
+  VM_IP: '20.121.62.227'
+  SSH_KEY: $(SSH_PRIVATE_KEY)  # store private key in Azure DevOps Pipeline secrets
+
+stages:
+- stage: CI_Demo
+  jobs:
+  - job: CheckVM
+    steps:
+    - task: InstallSSHKey@0
+      inputs:
+        sshPublicKey: ''
+        sshKeySecureFile: ''
+        sshPassphrase: ''
+        runAs: '$(VM_USER)'
+
+    - script: |
+        echo "Checking connectivity to VM..."
+        ssh -o StrictHostKeyChecking=no $(VM_USER)@$(VM_IP) "echo 'Hello from VM!'; uptime; hostname; whoami"
+      displayName: 'Connect to VM and show info'
