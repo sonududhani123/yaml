@@ -1,0 +1,24 @@
+# azure-pipelines.yml
+trigger:
+- main  # or the branch you want
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  outputFile: 'index.html'
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - task: Bash@3
+      name: GenerateHTML
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "<!DOCTYPE html>" > $(outputFile)
+          echo "<html><head><title>Demo Page</title></head><body>" >> $(outputFile)
+          echo "<h1>Welcome to CloudMoyo Demo Pipeline!</h1>" >> $(outputFile)
+          echo "<p>Pi
