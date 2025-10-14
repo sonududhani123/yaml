@@ -1,0 +1,41 @@
+# azure-pipelines.yml
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  outputFile: 'index.html'
+  vmUser: 'sonu321'
+  vmIP: '20.121.62.227'   # Your VM's public IP
+  vmPath: '/var/www/html/'
+
+stages:
+- stage: BuildAndDeploy
+  jobs:
+  - job: BuildJob
+    steps:
+    # 1️⃣ Generate HTML file
+    - task: Bash@3
+      name: GenerateHTML
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "<!DOCTYPE html>" > $(outputFile)
+          echo "<html><head><title>Demo Page</title></head><body>" >> $(outputFile)
+          echo "<h1>Welcome to CloudMoyo Demo Pipeline!</h1>" >> $(outputFile)
+          echo "<p>Pipeline run number: $(Build.BuildNumber)</p>" >> $(outputFile)
+          echo "<p>Status: $(Build.Status)</p>" >> $(outputFile)
+          echo "</body></html>" >> $(outputFile)
+
+    # 2️⃣ Copy HTML file to VM via SCP
+    - task: Bash@3
+      name: DeployToVM
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Copying file to VM..."
+          scp -o StrictHostKeyChecking=no $(outputFile) $(vmUser)@$(vmIP):$(vmPath)
+
+    #
